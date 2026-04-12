@@ -117,6 +117,7 @@ def main():
 
     # Birleştir, duplikasyonları temizle
     merged = pd.concat(all_frames, ignore_index=True)
+    merged["timestamp"] = pd.to_datetime(merged["timestamp"], utc=True)
     merged = merged.drop_duplicates(subset=["timestamp"]).sort_values("timestamp")
 
     # Feature engineering
