@@ -24,7 +24,7 @@ log = logging.getLogger(__name__)
 # ── Config ─────────────────────────────────────────────────────────────────────
 BASE_URL   = "https://www.smard.de/app/chart_data"
 FILTER_ID  = 4169   # Day-Ahead Spot Price (DE-LU)
-REGION     = "DE-LU"
+REGION     = "DE"
 RESOLUTION = "hour"
 OUTPUT_DIR = os.path.join(os.path.dirname(__file__), "..", "data", "output")
 OUTPUT_FILE = os.path.join(OUTPUT_DIR, "prices_daily.csv")
@@ -32,7 +32,7 @@ OUTPUT_FILE = os.path.join(OUTPUT_DIR, "prices_daily.csv")
 
 def get_available_timestamps() -> list:
     """SMARD'dan mevcut timestamp index'ini çeker."""
-    url = f"{BASE_URL}/{FILTER_ID}/{REGION}/{FILTER_ID}/{REGION}/{RESOLUTION}/index.json"
+    url = f"{BASE_URL}/{FILTER_ID}/{REGION}/index_{RESOLUTION}.json"
     log.info(f"Fetching index: {url}")
     resp = requests.get(url, timeout=30)
     resp.raise_for_status()
@@ -42,8 +42,8 @@ def get_available_timestamps() -> list:
 def fetch_smard_data(timestamp: int) -> pd.DataFrame:
     """Belirli bir timestamp için saatlik fiyat verisini çeker."""
     url = (
-        f"{BASE_URL}/{FILTER_ID}/{REGION}/{FILTER_ID}"
-        f"/{REGION}/{RESOLUTION}/{timestamp}.json"
+    f"{BASE_URL}/{FILTER_ID}/{REGION}"
+    f"/{FILTER_ID}_{REGION}_{RESOLUTION}_{timestamp}.json"
     )
     resp = requests.get(url, timeout=30)
     resp.raise_for_status()
