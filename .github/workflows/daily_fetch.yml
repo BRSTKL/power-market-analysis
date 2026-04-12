@@ -58,8 +58,8 @@ jobs:
       # ── 6. ENTSO-E'den üretim verisi çek ─────────────────────────────────────
       - name: ⚡ Fetch ENTSO-E generation mix
         run: |
-          echo "Fetching generation mix from ENTSO-E..."
-          python scripts/fetch_entso_e.py
+          python scripts/fetch_entso_e.py || echo "ENTSO-E fetch failed, continuing..."
+        continue-on-error: true
         env:
           ENTSO_E_TOKEN: ${{ secrets.ENTSO_E_TOKEN }}
           PYTHONPATH: .
