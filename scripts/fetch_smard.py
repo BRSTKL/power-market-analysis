@@ -53,10 +53,10 @@ def fetch_smard_data(timestamp: int) -> pd.DataFrame:
     for ts, price in series:
         if price is not None:
             records.append({
-                "timestamp": pd.to_datetime(ts, unit="ms", utc=True)
-                               .tz_convert("Europe/Berlin"),
-                "price_eur_mwh": round(price, 2)
-            })
+    "timestamp": pd.to_datetime(ts, unit="ms", utc=True)
+                   .tz_convert("Europe/Berlin"),
+    "price_eur_mwh": round(price / 10, 2)   # SMARD → EUR/MWh dönüşümü
+})
     return pd.DataFrame(records)
 
 
