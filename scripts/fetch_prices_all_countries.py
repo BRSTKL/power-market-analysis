@@ -25,9 +25,9 @@ OUTPUT_FILE   = os.path.join(OUTPUT_DIR, "prices_europe.csv")
 
 # Bidding zone EIC kodları
 BIDDING_ZONES = {
-    "DE": "10Y1001A1001A83F",   # Germany-Luxembourg
+    "DE": "10Y1001A1001A82H",   # Germany-Luxembourg
     "FR": "10YFR-RTE------C",   # France
-    "IT": "10YIT-GRTN-----B",   # Italy
+    "IT": "10Y1001A1001A73I",   # Italy
     "ES": "10YES-REE------0",   # Spain
     "NL": "10YNL----------L",   # Netherlands
     "BE": "10YBE----------2",   # Belgium
