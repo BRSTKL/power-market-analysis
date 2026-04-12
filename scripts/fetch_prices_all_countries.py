@@ -215,11 +215,6 @@ def main():
         else:
             log.warning(f"  ⚠️ {country}: No data")
 
-    # Türkiye — EPIAS
-    df_tr = fetch_turkey_prices(start_date, end_date)
-    if not df_tr.empty:
-        all_frames.append(df_tr)
-        log.info(f"  ✅ TR: {len(df_tr)} rows")
 
     if not all_frames:
         log.error("No data fetched!")
