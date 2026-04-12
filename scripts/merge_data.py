@@ -23,8 +23,8 @@ SUMMARY_F  = os.path.join(DATA_DIR, "daily_summary.csv")
 def load_prices() -> pd.DataFrame:
     df = pd.read_csv(PRICES_F, parse_dates=["timestamp"])
     df["timestamp"] = pd.to_datetime(df["timestamp"], utc=True).dt.tz_convert("Europe/Berlin")
-    # Saate yuvarla (join için)
-    df["timestamp_h"] = df["timestamp"].dt.floor("h")
+    # DST geçiş anlarında ambiguous hatası önle
+    df["timestamp_h"] = df["timestamp"].dt.tz_convert("UTC").dt.floor("h").dt.tz_convert("Europe/Berlin")
     log.info(f"Prices loaded: {len(df)} rows")
     return df
 
