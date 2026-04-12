@@ -1,0 +1,146 @@
+name: ⚡ Daily Energy Data Pipeline
+
+on:
+  schedule:
+    # Her sabah 07:30 UTC = 08:30 Berlin (CET) / 09:30 (CEST)
+    # Day-ahead verisi genellikle 06:00-07:00 UTC'de hazır olur
+    - cron: '30 7 * * *'
+
+  # Manuel tetikleme (test için)
+  workflow_dispatch:
+    inputs:
+      debug_mode:
+        description: 'Enable debug logging'
+        required: false
+        default: 'false'
+
+jobs:
+  fetch-and-update:
+    name: Fetch Energy Market Data
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    permissions:
+      contents: write    # CSV'leri commit edebilmek için
+
+    steps:
+      # ── 1. Repo'yu çek ──────────────────────────────────────────────────────
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      # ── 2. Python kur ────────────────────────────────────────────────────────
+      - name: 🐍 Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      # ── 3. Bağımlılıkları yükle ──────────────────────────────────────────────
+      - name: 📦 Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      # ── 4. Output dizinini oluştur ────────────────────────────────────────────
+      - name: 📁 Create output directory
+        run: mkdir -p data/output
+
+      # ── 5. SMARD'dan fiyat verisi çek ────────────────────────────────────────
+      - name: 💶 Fetch SMARD price data
+        run: |
+          echo "Fetching DE Day-Ahead prices from SMARD..."
+          python scripts/fetch_smard.py
+        env:
+          PYTHONPATH: .
+
+      # ── 6. ENTSO-E'den üretim verisi çek ─────────────────────────────────────
+      - name: ⚡ Fetch ENTSO-E generation mix
+        run: |
+          echo "Fetching generation mix from ENTSO-E..."
+          python scripts/fetch_entso_e.py
+        env:
+          ENTSO_E_TOKEN: ${{ secrets.ENTSO_E_TOKEN }}
+          PYTHONPATH: .
+
+      # ── 7. Verileri birleştir ─────────────────────────────────────────────────
+      - name: 🔗 Merge datasets
+        run: |
+          echo "Merging all datasets..."
+          python scripts/merge_data.py
+        env:
+          PYTHONPATH: .
+
+      # ── 8. Veri kalite kontrolü ───────────────────────────────────────────────
+      - name: ✅ Data quality check
+        run: |
+          python -c "
+          import pandas as pd, sys, os
+
+          files = {
+              'prices_daily.csv':   ['timestamp', 'price_eur_mwh'],
+              'generation_mix.csv': ['timestamp'],
+              'merged_dataset.csv': ['timestamp', 'price_eur_mwh'],
+              'daily_summary.csv':  ['date', 'avg_price'],
+          }
+
+          all_ok = True
+          for fname, required_cols in files.items():
+              fpath = f'data/output/{fname}'
+              if not os.path.exists(fpath):
+                  print(f'❌ MISSING: {fname}')
+                  all_ok = False
+                  continue
+              df = pd.read_csv(fpath)
+              missing = [c for c in required_cols if c not in df.columns]
+              if missing:
+                  print(f'❌ {fname}: missing columns {missing}')
+                  all_ok = False
+              else:
+                  print(f'✅ {fname}: {len(df)} rows, columns OK')
+
+          sys.exit(0 if all_ok else 1)
+          "
+
+      # ── 9. Özet istatistikler (log'da görünür) ────────────────────────────────
+      - name: 📊 Print summary statistics
+        run: |
+          python -c "
+          import pandas as pd
+          df = pd.read_csv('data/output/daily_summary.csv')
+          last = df.tail(7)
+          print('=== Last 7 Days Summary ===')
+          print(last[['date','avg_price','max_price','min_price','negative_hours']].to_string(index=False))
+          print(f'Overall avg: {df.avg_price.mean():.2f} EUR/MWh')
+          "
+
+      # ── 10. Değişiklikleri commit et ──────────────────────────────────────────
+      - name: 💾 Commit updated data files
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+
+          git add data/output/*.csv
+
+          # Değişiklik yoksa commit etme
+          if git diff --staged --quiet; then
+            echo "No changes to commit — data already up to date"
+          else
+            TIMESTAMP=$(date -u +"%Y-%m-%d %H:%M UTC")
+            git commit -m "⚡ Auto-update energy data [${TIMESTAMP}]"
+            git push
+            echo "✅ Data successfully pushed to repository"
+          fi
+
+  # ── Hata bildirimi ─────────────────────────────────────────────────────────
+  notify-on-failure:
+    name: Notify on failure
+    runs-on: ubuntu-latest
+    needs: fetch-and-update
+    if: failure()
+    steps:
+      - name: ❌ Log failure
+        run: |
+          echo "Pipeline failed at $(date -u)"
+          echo "Check the logs: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
