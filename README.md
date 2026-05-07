@@ -8,7 +8,7 @@
 
 | Metric | Value |
 |--------|-------|
-| **MAE** | 16.66 €/MWh |
+| **MAE** | 16.70 €/MWh |
 | **R²** | 0.78 |
 | **Model** | Random Forest Regressor |
 | **Data range** | 2020–2024 (hourly) |
