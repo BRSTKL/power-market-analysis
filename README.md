@@ -21,18 +21,21 @@
 ```
 power-market-analysis/
 ├── notebooks/
-│   ├── DE_power_analytics.ipynb         # Full DE analysis: EDA, backtest, heatmap, RF model
-│   └── European_Power_Analysis_EN.ipynb # Multi-country ENTSO-E price comparison
+│   ├── DE_power_analytics.ipynb              # DE market EDA, backtest, heatmap, RF model
+│   ├── European_Power_Analysis_EN.ipynb      # Multi-country ENTSO-E price comparison
+│   ├── intraday_arbitrage_backtest.ipynb     # Peak/off-peak spread strategy backtest
+│   ├── var_cvar_risk_analysis.ipynb          # Portfolio risk: VaR, CVaR, Monte Carlo
+│   └── renewable_price_correlation.ipynb    # Renewable generation vs price analysis
 ├── scripts/
-│   ├── fetch_smard.py                   # SMARD API data fetcher (DE prices)
-│   ├── fetch_prices_all_countries.py    # ENTSO-E multi-country prices
-│   ├── fetch_entso_e.py                 # Generation mix fetcher
-│   └── merge_data.py                    # Dataset merger
+│   ├── fetch_smard.py
+│   ├── fetch_prices_all_countries.py
+│   ├── fetch_entso_e.py
+│   └── merge_data.py
 ├── data/
-│   └── output/                          # Auto-updated CSV datasets
+│   └── output/
 ├── .github/
 │   └── workflows/
-│       └── daily_fetch.yml              # GitHub Actions (runs daily 07:30 UTC)
+│       └── daily_fetch.yml
 └── requirements.txt
 ```
 
@@ -66,11 +69,7 @@ Rule-based peak/off-peak spread strategy backtested across 1,985 trading days (2
 | **Best year** | 2022 — energy crisis (49.9 €/MWh/day) |
 | **Key finding** | Strategy decay post-2025 driven by renewable spread compression |
 
-### 3. European Power Analysis (`European_Power_Analysis_EN.ipynb`)
-Multi-country ENTSO-E price comparison: DE, FR, NL, NO, PL.
----
-
-### 4. VaR/CVaR Risk Analysis (`var_cvar_risk_analysis.ipynb`)
+### 3. VaR/CVaR Risk Analysis (`var_cvar_risk_analysis.ipynb`)
 Portfolio risk measurement using Historical Simulation, Parametric,
 and Monte Carlo methods across 1,985 trading days.
 
@@ -82,6 +81,10 @@ and Monte Carlo methods across 1,985 trading days.
 | **VaR breach rate** | 5.0% |
 | **Monte Carlo sims** | 10,000 |
 | **Key finding** | Fat-tail risk (kurtosis 11.3) underestimated by parametric approach |
+
+### 4. European Power Analysis (`European_Power_Analysis_EN.ipynb`)
+Multi-country ENTSO-E price comparison: DE, FR, NL, NO, PL.
+---
 
 ### 5. Renewable Energy & Price Correlation (`renewable_price_correlation.ipynb`)
 Hourly generation mix analysis using ENTSO-E API and SMARD prices (2023–2025).
