@@ -12,7 +12,7 @@
 | **R²** | 0.78 |
 | **Model** | Random Forest Regressor |
 | **Data range** | 2020–2024 (hourly) |
-| **Features** | 12 (price lags, generation mix, weather proxies) |
+| **Features** | 12 (price lags, net surplus, wind/solar, time) |
 
 ---
 
@@ -21,17 +21,18 @@
 ```
 power-market-analysis/
 ├── notebooks/
-│   ├── 01_data_exploration.ipynb       # SMARD API data pipeline & EDA
-│   ├── 02_correlation_analysis.ipynb   # Price vs. generation mix correlations
-│   ├── 03_backtesting.ipynb            # Spread strategy backtesting
-│   ├── 04_heatmap_analysis.ipynb       # Month×hour price heatmap
-│   └── 05_random_forest_model.ipynb    # ML model training & evaluation
+│   ├── DE_power_analytics.ipynb         # Full DE analysis: EDA, backtest, heatmap, RF model
+│   └── European_Power_Analysis_EN.ipynb # Multi-country ENTSO-E price comparison
 ├── scripts/
-│   └── fetch_smard_data.py             # Automated SMARD API data fetcher
+│   ├── fetch_smard.py                   # SMARD API data fetcher (DE prices)
+│   ├── fetch_prices_all_countries.py    # ENTSO-E multi-country prices
+│   ├── fetch_entso_e.py                 # Generation mix fetcher
+│   └── merge_data.py                    # Dataset merger
 ├── data/
-│   └── output/                         # Processed CSV datasets
+│   └── output/                          # Auto-updated CSV datasets
 ├── .github/
-│   └── workflows/                      # GitHub Actions (daily auto-fetch)
+│   └── workflows/
+│       └── daily_fetch.yml              # GitHub Actions (runs daily 07:30 UTC)
 └── requirements.txt
 ```
 
@@ -39,10 +40,12 @@ power-market-analysis/
 
 ## ⚡ Key Findings
 
-- **Renewable share** is the strongest price driver — **48% feature importance** in the Random Forest model
+- **Net surplus** (generation − consumption) is the strongest price driver — **80.8% feature importance**
+- **Price lags** (t-24h) are the second strongest signal — 4.7% importance
 - **Negative price hours** occur mainly during midday on high-solar weekends (cannibalization effect)
 - **Month×hour heatmap** reveals clear seasonal patterns: winter mornings and summer afternoons peak
-- **DE–FR price correlation** is high (>0.90), while DE–IT shows more divergence due to grid constraints
+- **DE–NL price correlation** is very high (0.98) — near-identical market behaviour
+- **France is structurally cheaper** than Germany by ~35 €/MWh on average (nuclear baseload)
 - **Peak/off-peak spread** averages ~15 €/MWh, providing consistent arbitrage signal
 
 ---
@@ -54,9 +57,9 @@ power-market-analysis/
 | `Python 3.11` | Core language |
 | `pandas / NumPy` | Data manipulation & time series |
 | `scikit-learn` | Random Forest model, cross-validation |
-| `matplotlib / seaborn` | Visualization |
+| `matplotlib` | Visualization |
 | `SMARD API` | German day-ahead price data (free, official) |
-| `ENTSO-E API` | European generation mix data |
+| `ENTSO-E API` | European generation mix & multi-country prices |
 | `GitHub Actions` | Daily automated data refresh (07:30 UTC) |
 
 ---
@@ -64,17 +67,16 @@ power-market-analysis/
 ## 📈 Model Architecture
 
 ```
-SMARD API (hourly prices)
-ENTSO-E API (generation mix)        →  Feature Engineering  →  Random Forest  →  Price Forecast
+SMARD API (hourly DE prices)
+ENTSO-E API (generation mix)   →  Feature Engineering  →  Random Forest  →  Price Forecast
 Open-Meteo (weather proxies)
 ```
 
 **Features used:**
-- Price lags (t-1, t-24, t-168 — hourly, daily, weekly)
-- Hour of day, day of week, month (cyclical encoding)
-- Renewable share (wind + solar as % of total generation)
-- Load forecast
-- Gas & coal generation share
+- Net surplus MWh (generation − consumption)
+- Price lags (t-24h, t-48h, t-168h — daily, 2-day, weekly)
+- Wind & solar generation (MWh)
+- Hour of day, day of week, month
 
 ---
 
@@ -88,10 +90,13 @@ pip install -r requirements.txt
 
 Run the data pipeline:
 ```bash
-python scripts/fetch_smard_data.py
+python scripts/fetch_smard.py
+python scripts/fetch_prices_all_countries.py
+python scripts/fetch_entso_e.py
+python scripts/merge_data.py
 ```
 
-Open notebooks in order (`01_` → `05_`) to reproduce the full analysis.
+Then open `notebooks/DE_power_analytics.ipynb` to reproduce the full analysis.
 
 ---
 
@@ -101,7 +106,7 @@ This project analyzes the **EPEX SPOT Germany/Luxembourg day-ahead market** — 
 
 - **Merit order effect**: renewables push conventional plants out of the stack → price suppression
 - **Cannibalization effect**: high solar output → midday price collapse
-- **Seasonal demand**: winter heating load vs. summer air conditioning in neighboring markets
+- **Net surplus effect**: when generation exceeds consumption, prices drop sharply — the dominant price signal
 - **Cross-border flows**: DE price influenced by French nuclear capacity and Dutch gas generation
 
 ---
@@ -116,9 +121,9 @@ This project analyzes the **EPEX SPOT Germany/Luxembourg day-ahead market** — 
 
 ## 👤 Author
 
-**Barış Egemen Tokul**  
-MSc Engineering Management — Berlin  
-Energy Systems Engineering (BSc) — Bahçeşehir University  
+**Barış Egemen Tokul**
+MSc Engineering Management — Berlin
+Energy Systems Engineering (BSc) — Bahçeşehir University
 
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-blue)](https://www.linkedin.com/in/baris-egemen-tokul-8016751b5)
 [![GitHub](https://img.shields.io/badge/GitHub-BRSTKL-black)](https://github.com/BRSTKL)
