@@ -5,6 +5,9 @@ on:
     - cron: '30 7 * * *'   # Her sabah 07:30 UTC (08:30 Berlin)
   workflow_dispatch:
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true   # Node.js 24 fix (zorunlu: June 2, 2026)
+
 jobs:
   fetch-and-update:
     name: Fetch European Energy Prices
@@ -27,7 +30,7 @@ jobs:
 
       - name: 📦 Install dependencies
         run: |
-          pip install pandas requests pytz --quiet
+          pip install pandas requests pytz entsoe-py --quiet
 
       - name: 📁 Create output directory
         run: mkdir -p data/output
@@ -44,6 +47,13 @@ jobs:
           ENTSO_E_TOKEN: ${{ secrets.ENTSO_E_TOKEN }}
           PYTHONPATH: .
 
+      - name: ⚡ Fetch generation mix (ENTSO-E)
+        run: python scripts/fetch_entso_e.py
+        continue-on-error: true
+        env:
+          ENTSO_E_TOKEN: ${{ secrets.ENTSO_E_TOKEN }}
+          PYTHONPATH: .
+
       - name: 🔗 Merge datasets
         run: python scripts/merge_data.py
         env:
@@ -52,16 +62,21 @@ jobs:
       - name: ✅ Data quality check
         run: |
           python -c "
-          import pandas as pd, os, sys
-          files = ['prices_daily.csv', 'prices_europe.csv', 'prices_pivot.csv', 'daily_summary.csv']
-          ok = True
+          import pandas as pd, os
+          files = [
+            'prices_daily.csv',
+            'prices_europe.csv',
+            'prices_pivot.csv',
+            'daily_summary.csv',
+            'generation_mix.csv',
+          ]
           for f in files:
               path = f'data/output/{f}'
               if os.path.exists(path):
                   df = pd.read_csv(path)
                   print(f'✅ {f}: {len(df)} rows')
               else:
-                  print(f'⚠️ {f}: not found')
+                  print(f'⚠️  {f}: not found')
           "
 
       - name: 💾 Commit updated data
