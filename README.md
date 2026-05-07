@@ -47,7 +47,27 @@ power-market-analysis/
 - **DE–NL price correlation** is very high (0.98) — near-identical market behaviour
 - **France is structurally cheaper** than Germany by ~35 €/MWh on average (nuclear baseload)
 - **Peak/off-peak spread** averages ~15 €/MWh, providing consistent arbitrage signal
+---
 
+## 📓 Notebooks
+
+### 1. DE Power Analytics (`DE_power_analytics.ipynb`)
+Full German market analysis: EDA, correlation, month×hour heatmap, Random Forest model.
+
+### 2. Intraday Arbitrage Backtest (`intraday_arbitrage_backtest.ipynb`)
+Rule-based peak/off-peak spread strategy backtested across 1,985 trading days (2018–2026).
+
+| Metric | Value |
+|--------|-------|
+| **Win rate** | 70.2% |
+| **Avg daily P&L** | 15.68 €/MWh |
+| **Profit factor** | 3.43x |
+| **Max drawdown** | -4,236 €/MWh |
+| **Best year** | 2022 — energy crisis (49.9 €/MWh/day) |
+| **Key finding** | Strategy decay post-2025 driven by renewable spread compression |
+
+### 3. European Power Analysis (`European_Power_Analysis_EN.ipynb`)
+Multi-country ENTSO-E price comparison: DE, FR, NL, NO, PL.
 ---
 
 ## 🛠️ Tech Stack
