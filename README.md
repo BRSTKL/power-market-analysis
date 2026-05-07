@@ -69,9 +69,11 @@ Rule-based peak/off-peak spread strategy backtested across 1,985 trading days (2
 ### 3. European Power Analysis (`European_Power_Analysis_EN.ipynb`)
 Multi-country ENTSO-E price comparison: DE, FR, NL, NO, PL.
 ---
+
 ### 4. VaR/CVaR Risk Analysis (`var_cvar_risk_analysis.ipynb`)
 Portfolio risk measurement using Historical Simulation, Parametric,
 and Monte Carlo methods across 1,985 trading days.
+
 
 | Metric | Value |
 |--------|-------|
@@ -80,6 +82,19 @@ and Monte Carlo methods across 1,985 trading days.
 | **VaR breach rate** | 5.0% |
 | **Monte Carlo sims** | 10,000 |
 | **Key finding** | Fat-tail risk (kurtosis 11.3) underestimated by parametric approach |
+
+### 5. Renewable Energy & Price Correlation (`renewable_price_correlation.ipynb`)
+Hourly generation mix analysis using ENTSO-E API and SMARD prices (2023–2025).
+
+| Metric | Value |
+|--------|-------|
+| **Dataset** | 26,300 hourly records (2023–2025) |
+| **Renewable share vs price** | r = -0.766 |
+| **Solar vs price (daytime)** | r = -0.623 (cannibalization effect) |
+| **Wind Onshore vs price** | r = -0.357 |
+| **Fossil generation vs price** | r = +0.714 |
+| **Negative price frequency** | 5.1% of hours |
+| **Key finding** | High solar output drives prices negative — cannibalization effect quantified |
 
 ## 🛠️ Tech Stack
 
