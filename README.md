@@ -21,24 +21,28 @@
 ```
 power-market-analysis/
 ├── notebooks/
-│   ├── DE_power_analytics.ipynb              # DE market EDA, backtest, heatmap, RF model
-│   ├── European_Power_Analysis_EN.ipynb      # Multi-country ENTSO-E price comparison
-│   ├── intraday_arbitrage_backtest.ipynb     # Peak/off-peak spread strategy backtest
-│   ├── var_cvar_risk_analysis.ipynb          # Portfolio risk: VaR, CVaR, Monte Carlo
-│   └── renewable_price_correlation.ipynb    # Renewable generation vs price analysis
+│   ├── DE_power_analytics.ipynb             # DE market EDA, backtest, heatmap, RF model
+│   ├── European_Power_Analysis_EN.ipynb     # Multi-country ENTSO-E price comparison
+│   ├── intraday_arbitrage_backtest.ipynb    # Peak/off-peak spread strategy backtest
+│   ├── var_cvar_risk_analysis.ipynb         # Portfolio risk: VaR, CVaR, Monte Carlo
+│   ├── renewable_price_correlation.ipynb   # Renewable generation vs price analysis
+│   └── ptf_epex_comparison.ipynb           # Turkey PTF vs Germany EPEX comparison
 ├── scripts/
-│   ├── fetch_smard.py
-│   ├── fetch_prices_all_countries.py
-│   ├── fetch_entso_e.py
-│   └── merge_data.py
+│   ├── fetch_smard.py                       # SMARD API data fetcher (DE prices)
+│   ├── fetch_prices_all_countries.py        # ENTSO-E multi-country prices
+│   ├── fetch_entso_e.py                     # Generation mix fetcher
+│   └── merge_data.py                        # Dataset merger
 ├── data/
+│   └── output/                              # Auto-updated CSV datasets
+├── .github/
+│   └── workflows/
+│       └── daily_fetch.yml                  # GitHub Actions (runs daily 07:30 UTC)
+└── requirements.txt├── data/
 │   └── output/
 ├── .github/
 │   └── workflows/
 │       └── daily_fetch.yml
 └── requirements.txt
-```
-
 ---
 
 ## ⚡ Key Findings
@@ -107,6 +111,22 @@ Hourly generation mix analysis using ENTSO-E API and SMARD prices (2023–2025).
 | **Negative price frequency** | 5.1% of hours |
 | **Key finding** | High solar output drives prices negative — cannibalization effect quantified |
 
+### 6. PTF–EPEX Price Comparison (`ptf_epex_comparison.ipynb`)
+Side-by-side comparison of Turkish day-ahead prices (PTF) and German EPEX spot prices,
+with TRY→EUR conversion for like-for-like analysis.
+
+| Metric | Value |
+|--------|-------|
+| **Dataset** | 26,280 hourly records (2023–2025) |
+| **Avg PTF (Turkey)** | 70.4 €/MWh |
+| **Avg EPEX (Germany)** | 87.7 €/MWh |
+| **Avg spread** | -17.3 €/MWh (Turkey structurally cheaper) |
+| **Turkey cheaper** | 69.4% of hours |
+| **Correlation** | 0.330 — markets move largely independently |
+| **Volatility ratio** | EPEX 1.69x more volatile than PTF |
+| **Negative prices TR** | 0.0% vs DE 5.1% |
+| **Key finding** | Spread widening: -5.8 €/MWh (2023) → -30.4 €/MWh (2025) |
+
 ## 🛠️ Tech Stack
 
 | Tool | Purpose |
@@ -118,6 +138,7 @@ Hourly generation mix analysis using ENTSO-E API and SMARD prices (2023–2025).
 | `SMARD API` | German day-ahead price data (free, official) |
 | `ENTSO-E API` | European generation mix & multi-country prices |
 | `GitHub Actions` | Daily automated data refresh (07:30 UTC) |
+| `EPİAŞ API (eptr2)` | Turkish day-ahead price data (PTF) |
 
 ---
 
