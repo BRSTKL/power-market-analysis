@@ -25,7 +25,7 @@ power-market-analysis/
 │   ├── European_Power_Analysis_EN.ipynb     # Multi-country ENTSO-E price comparison
 │   ├── intraday_arbitrage_backtest.ipynb    # Peak/off-peak spread strategy backtest
 │   ├── var_cvar_risk_analysis.ipynb         # Portfolio risk: VaR, CVaR, Monte Carlo
-│   ├── renewable_price_correlation.ipynb   # Renewable generation vs price analysis
+│   ├── renewable_price_correlation.ipynb    # Renewable generation vs price analysis
 │   └── ptf_epex_comparison.ipynb           # Turkey PTF vs Germany EPEX comparison
 ├── scripts/
 │   ├── fetch_smard.py                       # SMARD API data fetcher (DE prices)
@@ -37,12 +37,9 @@ power-market-analysis/
 ├── .github/
 │   └── workflows/
 │       └── daily_fetch.yml                  # GitHub Actions (runs daily 07:30 UTC)
-└── requirements.txt├── data/
-│   └── output/
-├── .github/
-│   └── workflows/
-│       └── daily_fetch.yml
 └── requirements.txt
+```
+
 ---
 
 ## ⚡ Key Findings
@@ -54,6 +51,7 @@ power-market-analysis/
 - **DE–NL price correlation** is very high (0.98) — near-identical market behaviour
 - **France is structurally cheaper** than Germany by ~35 €/MWh on average (nuclear baseload)
 - **Peak/off-peak spread** averages ~15 €/MWh, providing consistent arbitrage signal
+
 ---
 
 ## 📓 Notebooks
@@ -85,8 +83,7 @@ Multi-country day-ahead price analysis using ENTSO-E API across 5 European marke
 | **Key finding** | France persistently cheaper than Germany due to nuclear capacity |
 
 ### 4. VaR/CVaR Risk Analysis (`var_cvar_risk_analysis.ipynb`)
-Portfolio risk measurement using Historical Simulation, Parametric,
-and Monte Carlo methods across 1,985 trading days.
+Portfolio risk measurement using Historical Simulation, Parametric, and Monte Carlo methods across 1,985 trading days.
 
 | Metric | Value |
 |--------|-------|
@@ -95,8 +92,6 @@ and Monte Carlo methods across 1,985 trading days.
 | **VaR breach rate** | 5.0% |
 | **Monte Carlo sims** | 10,000 |
 | **Key finding** | Fat-tail risk (kurtosis 11.3) underestimated by parametric approach |
-
----
 
 ### 5. Renewable Energy & Price Correlation (`renewable_price_correlation.ipynb`)
 Hourly generation mix analysis using ENTSO-E API and SMARD prices (2023–2025).
@@ -112,8 +107,7 @@ Hourly generation mix analysis using ENTSO-E API and SMARD prices (2023–2025).
 | **Key finding** | High solar output drives prices negative — cannibalization effect quantified |
 
 ### 6. PTF–EPEX Price Comparison (`ptf_epex_comparison.ipynb`)
-Side-by-side comparison of Turkish day-ahead prices (PTF) and German EPEX spot prices,
-with TRY→EUR conversion for like-for-like analysis.
+Side-by-side comparison of Turkish day-ahead prices (PTF) and German EPEX spot prices, with TRY→EUR conversion for like-for-like analysis.
 
 | Metric | Value |
 |--------|-------|
@@ -127,6 +121,8 @@ with TRY→EUR conversion for like-for-like analysis.
 | **Negative prices TR** | 0.0% vs DE 5.1% |
 | **Key finding** | Spread widening: -5.8 €/MWh (2023) → -30.4 €/MWh (2025) |
 
+---
+
 ## 🛠️ Tech Stack
 
 | Tool | Purpose |
@@ -137,8 +133,8 @@ with TRY→EUR conversion for like-for-like analysis.
 | `matplotlib` | Visualization |
 | `SMARD API` | German day-ahead price data (free, official) |
 | `ENTSO-E API` | European generation mix & multi-country prices |
-| `GitHub Actions` | Daily automated data refresh (07:30 UTC) |
 | `EPİAŞ API (eptr2)` | Turkish day-ahead price data (PTF) |
+| `GitHub Actions` | Daily automated data refresh (07:30 UTC) |
 
 ---
 
