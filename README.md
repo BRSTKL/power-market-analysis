@@ -69,7 +69,18 @@ Rule-based peak/off-peak spread strategy backtested across 1,985 trading days (2
 | **Best year** | 2022 — energy crisis (49.9 €/MWh/day) |
 | **Key finding** | Strategy decay post-2025 driven by renewable spread compression |
 
-### 3. VaR/CVaR Risk Analysis (`var_cvar_risk_analysis.ipynb`)
+### 3. European Power Analysis (`European_Power_Analysis_EN.ipynb`)
+Multi-country day-ahead price analysis using ENTSO-E API across 5 European markets.
+
+| Metric | Value |
+|--------|-------|
+| **Countries** | DE, FR, NL, NO, PL |
+| **DE–NL correlation** | 0.98 — near-identical market behaviour |
+| **FR avg spread vs DE** | -35 €/MWh — structurally cheaper (nuclear baseload) |
+| **FR→DE arb frequency** | 68.5% of hours |
+| **Key finding** | France persistently cheaper than Germany due to nuclear capacity |
+
+### 4. VaR/CVaR Risk Analysis (`var_cvar_risk_analysis.ipynb`)
 Portfolio risk measurement using Historical Simulation, Parametric,
 and Monte Carlo methods across 1,985 trading days.
 
@@ -81,16 +92,6 @@ and Monte Carlo methods across 1,985 trading days.
 | **Monte Carlo sims** | 10,000 |
 | **Key finding** | Fat-tail risk (kurtosis 11.3) underestimated by parametric approach |
 
-### 4. European Power Analysis (`European_Power_Analysis_EN.ipynb`)
-Multi-country day-ahead price analysis using ENTSO-E API across 5 European markets.
-
-| Metric | Value |
-|--------|-------|
-| **Countries** | DE, FR, NL, NO, PL |
-| **DE–NL correlation** | 0.98 — near-identical market behaviour |
-| **FR avg spread vs DE** | -35 €/MWh — structurally cheaper (nuclear baseload) |
-| **FR→DE arb frequency** | 68.5% of hours |
-| **Key finding** | France persistently cheaper than Germany due to nuclear capacity |
 ---
 
 ### 5. Renewable Energy & Price Correlation (`renewable_price_correlation.ipynb`)
