@@ -120,7 +120,7 @@ This project analyzes the **EPEX SPOT Germany/Luxembourg day-ahead market** — 
 MSc Engineering Management — Berlin  
 Energy Systems Engineering (BSc) — Bahçeşehir University  
 
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-blue)](https://www.linkedin.com/in/barısegementokul)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-blue)](https://www.linkedin.com/in/baris-egemen-tokul-8016751b5)
 [![GitHub](https://img.shields.io/badge/GitHub-BRSTKL-black)](https://github.com/BRSTKL)
 
 ---
