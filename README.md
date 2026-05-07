@@ -69,6 +69,17 @@ Rule-based peak/off-peak spread strategy backtested across 1,985 trading days (2
 ### 3. European Power Analysis (`European_Power_Analysis_EN.ipynb`)
 Multi-country ENTSO-E price comparison: DE, FR, NL, NO, PL.
 ---
+### 4. VaR/CVaR Risk Analysis (`var_cvar_risk_analysis.ipynb`)
+Portfolio risk measurement using Historical Simulation, Parametric,
+and Monte Carlo methods across 1,985 trading days.
+
+| Metric | Value |
+|--------|-------|
+| **VaR 95%** | -43.28 €/MWh |
+| **CVaR 95%** | -64.99 €/MWh |
+| **VaR breach rate** | 5.0% |
+| **Monte Carlo sims** | 10,000 |
+| **Key finding** | Fat-tail risk (kurtosis 11.3) underestimated by parametric approach |
 
 ## 🛠️ Tech Stack
 
