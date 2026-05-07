@@ -18,7 +18,7 @@
 
 ## 🗂️ Project Structure
 
-\```
+```
 power-market-analysis/
 ├── notebooks/
 │   ├── DE_power_analytics.ipynb         # Full DE analysis: EDA, backtest, heatmap, RF model
@@ -34,7 +34,7 @@ power-market-analysis/
 │   └── workflows/
 │       └── daily_fetch.yml              # GitHub Actions (runs daily 07:30 UTC)
 └── requirements.txt
-\```
+```
 
 ---
 
@@ -47,3 +47,88 @@ power-market-analysis/
 - **DE–NL price correlation** is very high (0.98) — near-identical market behaviour
 - **France is structurally cheaper** than Germany by ~35 €/MWh on average (nuclear baseload)
 - **Peak/off-peak spread** averages ~15 €/MWh, providing consistent arbitrage signal
+
+---
+
+## 🛠️ Tech Stack
+
+| Tool | Purpose |
+|------|---------|
+| `Python 3.11` | Core language |
+| `pandas / NumPy` | Data manipulation & time series |
+| `scikit-learn` | Random Forest model, cross-validation |
+| `matplotlib` | Visualization |
+| `SMARD API` | German day-ahead price data (free, official) |
+| `ENTSO-E API` | European generation mix & multi-country prices |
+| `GitHub Actions` | Daily automated data refresh (07:30 UTC) |
+
+---
+
+## 📈 Model Architecture
+
+```
+SMARD API (hourly DE prices)
+ENTSO-E API (generation mix)   →  Feature Engineering  →  Random Forest  →  Price Forecast
+Open-Meteo (weather proxies)
+```
+
+**Features used:**
+- Net surplus MWh (generation − consumption)
+- Price lags (t-24h, t-48h, t-168h — daily, 2-day, weekly)
+- Wind & solar generation (MWh)
+- Hour of day, day of week, month
+
+---
+
+## 🚀 Quick Start
+
+```bash
+git clone https://github.com/BRSTKL/power-market-analysis.git
+cd power-market-analysis
+pip install -r requirements.txt
+```
+
+Run the data pipeline:
+
+```bash
+python scripts/fetch_smard.py
+python scripts/fetch_prices_all_countries.py
+python scripts/fetch_entso_e.py
+python scripts/merge_data.py
+```
+
+Then open `notebooks/DE_power_analytics.ipynb` to reproduce the full analysis.
+
+---
+
+## 📌 Market Context
+
+This project analyzes the **EPEX SPOT Germany/Luxembourg day-ahead market** — one of Europe's most liquid electricity markets. Key dynamics modeled:
+
+- **Merit order effect**: renewables push conventional plants out of the stack → price suppression
+- **Cannibalization effect**: high solar output → midday price collapse
+- **Net surplus effect**: when generation exceeds consumption, prices drop sharply — the dominant price signal
+- **Cross-border flows**: DE price influenced by French nuclear capacity and Dutch gas generation
+
+---
+
+## 🔗 Related Work
+
+- [ENTSO-E Transparency Platform](https://transparency.entsoe.eu/)
+- [SMARD Market Data](https://www.smard.de/en)
+- [EPEX SPOT Market Results](https://www.epexspot.com/en/market-results)
+
+---
+
+## 👤 Author
+
+**Barış Egemen Tokul**
+MSc Engineering Management — Berlin
+Energy Systems Engineering (BSc) — Bahçeşehir University
+
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-blue)](https://www.linkedin.com/in/baris-egemen-tokul-8016751b5)
+[![GitHub](https://img.shields.io/badge/GitHub-BRSTKL-black)](https://github.com/BRSTKL)
+
+---
+
+*Data is automatically refreshed daily via GitHub Actions. Last model training: 2024.*
