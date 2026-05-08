@@ -11,7 +11,7 @@
 | **MAE** | 16.70 €/MWh |
 | **R²** | 0.78 |
 | **Model** | Random Forest Regressor |
-| **Data range** | 2020–2024 (hourly) |
+| **Data range** | 2020–present (hourly) |
 | **Features** | 12 (price lags, net surplus, wind/solar, time) |
 
 ---
@@ -143,7 +143,6 @@ Side-by-side comparison of Turkish day-ahead prices (PTF) and German EPEX spot p
 ```
 SMARD API (hourly DE prices)
 ENTSO-E API (generation mix)   →  Feature Engineering  →  Random Forest  →  Price Forecast
-Open-Meteo (weather proxies)
 ```
 
 **Features used:**
@@ -205,4 +204,4 @@ Energy Systems Engineering (BSc) — Bahçeşehir University
 
 ---
 
-*Data is automatically refreshed daily via GitHub Actions. Last model training: 2024.*
+*Data is automatically refreshed daily via GitHub Actions.*
