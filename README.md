@@ -1,4 +1,4 @@
-# 🔌 Germany Day-Ahead Electricity Price Forecasting
+# Germany Day-Ahead Electricity Price Forecasting
 
 > Machine learning pipeline for forecasting German hourly electricity prices using SMARD market data and ENTSO-E generation mix.
 
@@ -16,7 +16,7 @@
 
 ---
 
-## 🗂️ Project Structure
+## Project Structure
 
 ```
 power-market-analysis/
@@ -42,7 +42,7 @@ power-market-analysis/
 
 ---
 
-## ⚡ Key Findings
+## Key Findings
 
 - **Net surplus** (generation − consumption) is the strongest price driver — **80.8% feature importance**
 - **Price lags** (t-24h) are the second strongest signal — 4.7% importance
@@ -54,7 +54,7 @@ power-market-analysis/
 
 ---
 
-## 📓 Notebooks
+## Notebooks
 
 ### 1. DE Power Analytics (`DE_power_analytics.ipynb`)
 Full German market analysis: EDA, correlation, month×hour heatmap, Random Forest model.
@@ -123,7 +123,7 @@ Side-by-side comparison of Turkish day-ahead prices (PTF) and German EPEX spot p
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 | Tool | Purpose |
 |------|---------|
@@ -138,7 +138,7 @@ Side-by-side comparison of Turkish day-ahead prices (PTF) and German EPEX spot p
 
 ---
 
-## 📈 Model Architecture
+## Model Architecture
 
 ```
 SMARD API (hourly DE prices)
@@ -154,7 +154,7 @@ Open-Meteo (weather proxies)
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
 ```bash
 git clone https://github.com/BRSTKL/power-market-analysis.git
@@ -175,7 +175,7 @@ Then open `notebooks/DE_power_analytics.ipynb` to reproduce the full analysis.
 
 ---
 
-## 📌 Market Context
+## Market Context
 
 This project analyzes the **EPEX SPOT Germany/Luxembourg day-ahead market** — one of Europe's most liquid electricity markets. Key dynamics modeled:
 
@@ -186,7 +186,7 @@ This project analyzes the **EPEX SPOT Germany/Luxembourg day-ahead market** — 
 
 ---
 
-## 🔗 Related Work
+## Related Work
 
 - [ENTSO-E Transparency Platform](https://transparency.entsoe.eu/)
 - [SMARD Market Data](https://www.smard.de/en)
@@ -194,7 +194,7 @@ This project analyzes the **EPEX SPOT Germany/Luxembourg day-ahead market** — 
 
 ---
 
-## 👤 Author
+## Author
 
 **Barış Egemen Tokul**
 MSc Engineering Management — Berlin
