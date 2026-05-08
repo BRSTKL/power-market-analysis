@@ -4,7 +4,7 @@
 
 ---
 
-## 📊 Results
+## Results
 
 | Metric | Value |
 |--------|-------|
