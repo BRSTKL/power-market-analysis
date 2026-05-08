@@ -74,7 +74,7 @@ def add_features(df: pd.DataFrame) -> pd.DataFrame:
     df = df.sort_values("timestamp").reset_index(drop=True)
     df["date"]          = pd.to_datetime(df["timestamp"]).dt.date
     df["hour"]          = pd.to_datetime(df["timestamp"]).dt.hour
-    df["weekday"]       = pd.to_datetime(df["timestamp"]).dt.day_name()
+    df["weekday"] = pd.to_datetime(df["timestamp"]).dt.dayofweek  # 0=Monday, 6=Sunday)
     df["is_weekend"]    = pd.to_datetime(df["timestamp"]).dt.weekday >= 5
     df["month"]         = pd.to_datetime(df["timestamp"]).dt.month
     df["year"]          = pd.to_datetime(df["timestamp"]).dt.year
