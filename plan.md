@@ -67,11 +67,36 @@ Bu plan, geliştirilen Makine Öğrenmesi elektrik fiyat tahmin modelinin çıkt
 
 ---
 
-## 📊 Model Karşılaştırma Özeti (XGBoost vs Random Forest)
+## ⚡ Faz 2: Ticari Derinlik ve Fiziksel Gerçeklik (Domain Uzmanlığı)
 
-| Metrik | Random Forest | XGBoost (Faz 1) | İyileşme |
-|---|:---:|:---:|:---:|
-| **MAE (Ortalama Mutlak Hata)** | 20.57 €/MWh | **17.68 €/MWh** | **%14.1 daha az hata** 📉 |
-| **RMSE (Hata Standart Sapması)** | 39.46 €/MWh | **32.10 €/MWh** | **%18.6 daha az hata** 📉 |
-| **$R^2$ Doğruluk Skoru** | 0.8407 | **0.8946** | **~%90 seviyesine yükseldi** 📈 |
-| **Eğitim Hızı** | 0.28s | 0.95s | Endüstriyel optimize hız |
+- [x] **Gün İçi Piyasası (Intraday Continuous / 15-Dakika) Entegrasyonu (`intraday_market.py`):**
+  - [x] SMARD API üzerinden 15 dakikalık (`quarterhour`) fiyat, tüketim yükü ve yenilenebilir üretim serileri çekildi.
+  - [x] **Fiziksel Rampa Modellemesi:**
+    - `Solar_Ramp_15m`: Bulut geçişlerinin (cloud transients) güneş üretimine ve fiyat sıçramalarına etkisini yakalayan rampa türevi.
+    - `Wind_Ramp_15m` ve `Net_Residual_Ramp_15m`: Şebeke dengesizliği yaratan ani rüzgar ve tüketim hareketleri.
+  - [x] 15 dakikalık XGBoost tahmin modeli eğitildi: **$R^2 = 0.9328$, $\text{MAE} = 16.74\text{ €/MWh}$**.
+  - [x] 15 dakikalık ($\Delta t = 0.25\text{ h}$) yüksek çözünürlüklü BESS arbitraj optimizasyonu hayata geçirildi.
+
+- [x] **Dinamik Yıpranma ve Rainflow Döngü Sayımı (`degradation_model.py`):**
+  - [x] Sabit 5 €/MWh varsayımı yerine **ASTM E1049-85 Rainflow Cycle Counting** algoritması sıfırdan geliştirildi.
+  - [x] Wöhler / Coffin-Manson güç yasası ile Deşarj Derinliği (DoD) yorulma hasarı modellendi ($N_{fail} = 6000 \cdot (0.8/\text{DoD})^{1.8}$).
+  - [x] Yüksek SoC (>70%) kimyasal elektrolit yıpranma gerilim katsayısı (SoC Mean Stress Factor) entegre edildi.
+  - [x] Batarya Sağlık Durumu (State of Health - SOH % kaybı) ve beklenen operasyonel ömür (Yıl cinsinden) hesaplandı.
+
+- [x] **Streamlit Web Dashboard Entegrasyonu (`app.py`):**
+  - [x] Saatlik (GÖP) vs. 15-Dakikalık (GİP) piyasa seçim toggle'ı.
+  - [x] Sabit Doğrusal vs. Non-Linear Rainflow yıpranma modeli seçim seçeneği.
+  - [x] Döngü Derinliği (DoD %) dağılım histogramı, batarya ömür göstergesi ve güneş bulut geçiş rampası grafikleri eklendi.
+
+---
+
+## 📊 Faz 2 Sonuç Özeti (Intraday & Rainflow)
+
+| Metrik | Saatlik (GÖP) | 15-Dakikalık (GİP / Intraday) |
+|---|:---:|:---:|
+| **Zaman Çözünürlüğü** | 60 dakika | **15 dakika** ($\Delta t = 0.25\text{ h}$) |
+| **Model Doğruluğu ($R^2$)** | 0.8946 | **0.9328** 🚀 |
+| **Model MAE Hatası** | 17.68 €/MWh | **16.74 €/MWh** |
+| **Fiziksel Rampa Tespiti** | Sınırlı | **Bulut geçişleri & ani rüzgar rampaları** |
+| **Yıpranma Analizi** | Sabit 5 €/MWh | **ASTM E1049 Rainflow + SOH Yaşlanma** |
+| **Tahmini Batarya Ömrü** | Varsayımsal | **~30 yıl (Sığ döngü optimizasyonu ile)** |
