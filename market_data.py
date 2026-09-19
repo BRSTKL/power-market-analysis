@@ -233,38 +233,116 @@ def detect_price_anomalies(
 
 # ── Entry Point ──────────────────────────────────────────────────────────────
 
+# ── SMARD API (Germany) ──────────────────────────────────────────────────────
+
+def fetch_smard_data(
+    filter_id: int = 4169,
+    region: str = "DE",
+    resolution: str = "hour",
+) -> Optional[pd.DataFrame]:
+    """
+    Fetch German day-ahead electricity prices from the SMARD API.
+
+    Uses a two-step process:
+      1. Fetch available timestamps from the index endpoint.
+      2. Retrieve price data for the latest timestamp.
+
+    Parameters
+    ----------
+    filter_id : int
+        SMARD filter code (default 4169 = DE/LU market price).
+    region : str
+        Region code (default 'DE').
+    resolution : str
+        Time resolution ('hour', 'quarterhour', 'day', 'week', 'month').
+
+    Returns
+    -------
+    pd.DataFrame or None
+        DataFrame with columns ['Datetime', 'Price_EUR_MWh'], or None on failure.
+    """
+    # Step 1: Get the index of available timestamps
+    index_url = (
+        f"https://www.smard.de/app/chart_data/{filter_id}/{region}"
+        f"/index_{resolution}.json"
+    )
+    print(f"Fetching timestamp index from SMARD API...")
+    try:
+        resp = requests.get(index_url, timeout=30)
+        resp.raise_for_status()
+    except requests.RequestException as e:
+        print(f"Index request failed: {e}")
+        return None
+
+    timestamps = resp.json().get("timestamps", [])
+    if not timestamps:
+        print("No timestamps available.")
+        return None
+
+    # Step 2: Fetch data for the latest timestamp
+    latest_ts = timestamps[-1]
+    data_url = (
+        f"https://www.smard.de/app/chart_data/{filter_id}/{region}"
+        f"/{filter_id}_{region}_{resolution}_{latest_ts}.json"
+    )
+    print(f"Fetching price data (timestamp: {latest_ts})...")
+    try:
+        resp = requests.get(data_url, timeout=30)
+        resp.raise_for_status()
+    except requests.RequestException as e:
+        print(f"Data request failed: {e}")
+        return None
+
+    series_data = resp.json().get("series", [])
+    if not series_data:
+        print("No series data found.")
+        return None
+
+    # Build DataFrame
+    df = pd.DataFrame(series_data, columns=["Timestamp", "Price_EUR_MWh"])
+    df["Datetime"] = pd.to_datetime(df["Timestamp"], unit="ms")
+    df = df[["Datetime", "Price_EUR_MWh"]]
+
+    # Drop rows where price is None (gaps in data)
+    df.dropna(subset=["Price_EUR_MWh"], inplace=True)
+    df.reset_index(drop=True, inplace=True)
+
+    print(f"\n[OK] Data fetched successfully! {len(df)} records retrieved.")
+    print(df.head())
+    return df
+
+
+# ── Entry Point ──────────────────────────────────────────────────────────────
+
 if __name__ == "__main__":
-    # Example: Generate sample data and run analysis
     print("=" * 60)
-    print("  Energy Market Data - Sample Analysis")
+    print("  Energy Market Data - SMARD Germany Analysis")
     print("=" * 60)
 
-    # Generate sample data for demonstration
-    np.random.seed(42)
-    dates = pd.date_range(start="2025-01-01", periods=365, freq="D")
-    base_price = 50 + np.cumsum(np.random.randn(365) * 0.5)
-    sample_df = pd.DataFrame({"date": dates, "price": base_price})
+    # Fetch real data from SMARD API
+    df = fetch_smard_data()
 
-    # Calculate statistics
-    stats = calculate_price_statistics(sample_df)
-    print("\n📊 Price Statistics:")
-    for key, value in stats.items():
-        print(f"   {key:>12}: {value}")
+    if df is not None:
+        # Calculate statistics
+        stats = calculate_price_statistics(df, column="Price_EUR_MWh")
+        print("\n[STATS] Price Statistics (EUR/MWh):")
+        for key, value in stats.items():
+            print(f"   {key:>12}: {value}")
 
-    # Moving averages
-    ma_df = calculate_moving_average(sample_df, window=30)
-    print(f"\n📈 30-day SMA (latest): {ma_df['SMA_30'].iloc[-1]:.2f}")
-    print(f"📈 30-day EMA (latest): {ma_df['EMA_30'].iloc[-1]:.2f}")
+        # Moving averages
+        ma_df = calculate_moving_average(df, column="Price_EUR_MWh", window=24)
+        print(f"\n[SMA] 24-hour SMA (latest): {ma_df['SMA_24'].iloc[-1]:.2f} EUR/MWh")
+        print(f"[EMA] 24-hour EMA (latest): {ma_df['EMA_24'].iloc[-1]:.2f} EUR/MWh")
 
-    # Volatility
-    vol_df = calculate_volatility(sample_df, window=30)
-    latest_vol = vol_df["volatility"].iloc[-1]
-    print(f"\n📉 Annualized Volatility (latest): {latest_vol:.4f}")
+        # Volatility
+        vol_df = calculate_volatility(df, column="Price_EUR_MWh", window=24)
+        latest_vol = vol_df["volatility"].dropna().iloc[-1]
+        print(f"\n[VOL] Annualized Volatility (latest): {latest_vol:.4f}")
 
-    # Anomaly detection
-    anomaly_df = detect_price_anomalies(sample_df)
-    anomaly_count = anomaly_df["is_anomaly"].sum()
-    print(f"\n⚠️  Anomalies detected: {anomaly_count} out of {len(anomaly_df)} data points")
+        # Anomaly detection
+        anomaly_df = detect_price_anomalies(df, column="Price_EUR_MWh")
+        anomaly_count = anomaly_df["is_anomaly"].sum()
+        print(f"\n[!] Anomalies detected: {anomaly_count} out of {len(anomaly_df)} data points")
 
     print("\n" + "=" * 60)
     print("  Analysis complete.")
