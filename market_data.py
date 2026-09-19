@@ -312,6 +312,102 @@ def fetch_smard_data(
     return df
 
 
+def fetch_smard_fundamentals(
+    weeks: int = 4,
+    region: str = "DE",
+    resolution: str = "hour",
+) -> Optional[pd.DataFrame]:
+    """
+    Fetch electricity prices and physical market fundamentals from SMARD API:
+      - 4169: Day-Ahead Electricity Price (EUR/MWh)
+      - 410:  Total Grid Load / Power Consumption (MWh)
+      - 4359: Residual Load (MWh)
+      - 4068: Photovoltaic / Solar Generation (MWh)
+      - 4067: Wind Onshore Generation (MWh)
+      - 1225: Wind Offshore Generation (MWh)
+
+    Parameters
+    ----------
+    weeks : int
+        Number of historical weeks to fetch (each timestamp block is 1 week = 168h).
+    region : str
+        Region code (default 'DE').
+    resolution : str
+        Time resolution (default 'hour').
+
+    Returns
+    -------
+    pd.DataFrame or None
+        Combined DataFrame with physical fundamentals and prices aligned by timestamp.
+    """
+    filter_map = {
+        "Price_EUR_MWh": 4169,
+        "Load_MWh": 410,
+        "Residual_Load_MWh": 4359,
+        "Solar_MWh": 4068,
+        "Wind_Onshore_MWh": 4067,
+        "Wind_Offshore_MWh": 1225,
+    }
+
+    # Fetch available timestamps from price index
+    index_url = f"https://www.smard.de/app/chart_data/4169/{region}/index_{resolution}.json"
+    print(f"Fetching timestamp index for {weeks} weeks of data...")
+    try:
+        resp = requests.get(index_url, timeout=30)
+        resp.raise_for_status()
+        all_ts = resp.json().get("timestamps", [])
+    except requests.RequestException as e:
+        print(f"Failed to fetch timestamp index: {e}")
+        return None
+
+    if not all_ts:
+        print("No timestamps found.")
+        return None
+
+    target_ts = all_ts[-weeks:]
+    print(f"Fetching {len(target_ts)} week(s) of physical fundamental data...")
+
+    dfs = {}
+    for col_name, fid in filter_map.items():
+        all_series = []
+        for ts in target_ts:
+            url = f"https://www.smard.de/app/chart_data/{fid}/{region}/{fid}_{region}_{resolution}_{ts}.json"
+            try:
+                r = requests.get(url, timeout=20)
+                if r.status_code == 200:
+                    data = r.json().get("series", [])
+                    all_series.extend(data)
+            except requests.RequestException:
+                pass
+        
+        df_temp = pd.DataFrame(all_series, columns=["Timestamp", col_name]).dropna()
+        df_temp.drop_duplicates(subset=["Timestamp"], inplace=True)
+        dfs[col_name] = df_temp
+
+    # Merge all metrics on Timestamp
+    merged = dfs["Price_EUR_MWh"]
+    for col_name in list(filter_map.keys())[1:]:
+        if col_name in dfs and not dfs[col_name].empty:
+            merged = pd.merge(merged, dfs[col_name], on="Timestamp", how="inner")
+
+    if merged.empty:
+        print("Failed to merge fundamental datasets.")
+        return None
+
+    merged["Datetime"] = pd.to_datetime(merged["Timestamp"], unit="ms")
+    merged.sort_values("Datetime", inplace=True)
+    merged.reset_index(drop=True, inplace=True)
+
+    # Derived fundamental market metrics
+    merged["Total_Renewable_MWh"] = (
+        merged["Solar_MWh"] + merged["Wind_Onshore_MWh"] + merged["Wind_Offshore_MWh"]
+    )
+    merged["Renewable_Share"] = merged["Total_Renewable_MWh"] / (merged["Load_MWh"] + 1e-5)
+
+    print(f"[OK] Fetched {len(merged)} hourly records with fundamentals.")
+    return merged
+
+
 # ── Entry Point ──────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
