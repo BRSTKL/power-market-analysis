@@ -1,0 +1,2 @@
+run_id,run_date,model_name,model_r2,model_mae_eur_mwh,battery_power_mw,battery_capacity_mwh,net_profit_eur,perfect_foresight_profit_eur,value_capture_ratio_pct,realized_spread_eur_mwh,avg_discharge_price_eur_mwh,avg_charge_price_eur_mwh,full_cycle_equivalents,rainflow_wear_cost_eur,capacity_fade_pct,projected_lifetime_years
+87406aa8-03ee-45ed-a06c-9feae7f0ed77,2026-09-20,XGBoost-Phase3,0.9083,18.33,1.0,2.0,1722.64,1740.74,98.96,149.74,219.63,69.88,8.37,1.04,0.0001,30.0

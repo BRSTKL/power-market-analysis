@@ -1,0 +1,115 @@
+{
+  "name": "BESS Automated Power Market Ingestion & MLOps Pipeline",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 10 * * *"
+            }
+          ]
+        }
+      },
+      "id": "1",
+      "name": "Daily 10:00 AM Cron Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "url": "https://www.smard.de/app/chart_data/4169/DE/index_hour.json",
+        "options": {}
+      },
+      "id": "2",
+      "name": "Fetch SMARD Latest Timestamps",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "command": "python pipeline_runner.py --weeks 4"
+      },
+      "id": "3",
+      "name": "Trigger MLOps Pipeline & Optimization",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT * FROM public.v_powerbi_executive_summary LIMIT 1;"
+      },
+      "id": "4",
+      "name": "Query Latest Supabase KPIs",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.3,
+      "position": [900, 300]
+    },
+    {
+      "parameters": {
+        "chatId": "=@energy_trading_alerts",
+        "text": "=⚡ BESS Daily Arbitrage Execution Complete\n\n📅 Date: {{ $json.run_date }}\n🤖 Model: {{ $json.model_name }} (R²: {{ $json.model_r2 }})\n💰 Net Arbitrage Profit: {{ $json.net_profit_eur }} €\n🎯 Value Capture Ratio: {{ $json.value_capture_ratio_pct }}%\n📈 Realized Spread: {{ $json.realized_spread_eur_mwh }} €/MWh\n🔋 Battery Life: {{ $json.projected_lifetime_years }} Years"
+      },
+      "id": "5",
+      "name": "Send Executive Telegram / Slack Alert",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.1,
+      "position": [1120, 300]
+    }
+  ],
+  "connections": {
+    "Daily 10:00 AM Cron Trigger": {
+      "main": [
+        [
+          {
+            "node": "Fetch SMARD Latest Timestamps",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch SMARD Latest Timestamps": {
+      "main": [
+        [
+          {
+            "node": "Trigger MLOps Pipeline & Optimization",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Trigger MLOps Pipeline & Optimization": {
+      "main": [
+        [
+          {
+            "node": "Query Latest Supabase KPIs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Query Latest Supabase KPIs": {
+      "main": [
+        [
+          {
+            "node": "Send Executive Telegram / Slack Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

@@ -1,0 +1,33 @@
+version: "3.8"
+
+services:
+  # 1. Interactive Streamlit Web Application
+  bess-dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: bess-analytics-dashboard
+    restart: unless-stopped
+    ports:
+      - "8501:8501"
+    environment:
+      - PYTHONUNBUFFERED=1
+      - SUPABASE_URL=${SUPABASE_URL:-}
+      - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY:-}
+    volumes:
+      - ./data/output:/app/data/output
+
+  # 2. Daily MLOps Pipeline Runner (Scheduled cron / batch)
+  bess-pipeline-runner:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: bess-mlops-runner
+    profiles: ["batch"]
+    command: ["python", "pipeline_runner.py", "--weeks", "4"]
+    environment:
+      - PYTHONUNBUFFERED=1
+      - SUPABASE_URL=${SUPABASE_URL:-}
+      - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY:-}
+    volumes:
+      - ./data/output:/app/data/output

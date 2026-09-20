@@ -90,13 +90,25 @@ Bu plan, geliştirilen Makine Öğrenmesi elektrik fiyat tahmin modelinin çıkt
 
 ---
 
-## 📊 Faz 2 Sonuç Özeti (Intraday & Rainflow)
+## 🛠️ Faz 3: Tam Otomasyon ve MLOps (Mühendislik Altyapısı)
 
-| Metrik | Saatlik (GÖP) | 15-Dakikalık (GİP / Intraday) |
-|---|:---:|:---:|
-| **Zaman Çözünürlüğü** | 60 dakika | **15 dakika** ($\Delta t = 0.25\text{ h}$) |
-| **Model Doğruluğu ($R^2$)** | 0.8946 | **0.9328** 🚀 |
-| **Model MAE Hatası** | 17.68 €/MWh | **16.74 €/MWh** |
-| **Fiziksel Rampa Tespiti** | Sınırlı | **Bulut geçişleri & ani rüzgar rampaları** |
-| **Yıpranma Analizi** | Sabit 5 €/MWh | **ASTM E1049 Rainflow + SOH Yaşlanma** |
-| **Tahmini Batarya Ömrü** | Varsayımsal | **~30 yıl (Sığ döngü optimizasyonu ile)** |
+- [x] **Uçtan Uca Otomasyon Scripti (`pipeline_runner.py`):**
+  - [x] Headless modda SMARD verisi çeken, Supabase'e yazan, XGBoost modelini çalıştıran, SciPy HiGHS optimizasyonunu çözen ve Rainflow yorulmasını hesaplayan tam otomatik Python runner.
+  - [x] CLI argümanları (`--weeks`, `--power-mw`, `--duration-h`, `--dry-run`, `--no-csv`).
+  - [x] Power BI için doğrudan kullanıma hazır CSV çıktıları (`data/output/powerbi_hourly_dispatch.csv` ve `data/output/powerbi_daily_kpis.csv`).
+
+- [x] **Supabase Veritabanı Mimarisi (`supabase_schema.sql`):**
+  - [x] `market_fundamentals_hourly`: Ham ve işlenmiş piyasa verileri.
+  - [x] `bess_dispatch_forecasts`: Saatlik model tahminleri ve batarya şarj/deşarj çizelgesi.
+  - [x] `bess_daily_kpis`: Yönetici özeti, kâr, değer yakalama ve pil ömrü metrikleri.
+  - [x] Power BI için DirectQuery hazır SQL View'ları (`v_powerbi_hourly_dispatch`, `v_powerbi_executive_summary`).
+  - [x] Satır Bazlı Güvenlik (RLS) politikaları.
+
+- [x] **Konteynerizasyon (`Dockerfile`, `docker-compose.yml`, `.dockerignore`):**
+  - [x] Python 3.11-slim tabanlı, optimize edilmiş Docker imajı.
+  - [x] `docker-compose.yml` ile 2 servis: Web Dashboard (port 8501) ve Batch MLOps Runner.
+  - [x] Konteyner sağlık kontrolü (`HEALTHCHECK`).
+
+- [x] **n8n İş Akışı Entegrasyonu (`n8n_workflow.json`):**
+  - [x] Her sabah 10:00 Cron tetikleyicisi.
+  - [x] SMARD API veri çekme, Docker/Python runner tetikleme, Supabase KPI sorgulama ve Telegram/Slack uyarı bildirimi akışı.
